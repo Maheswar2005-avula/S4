@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Story | Forever</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@200;400;600&display=swap');
+
+        :root {
+            --gold: #c5a059;
+            --velvet: #1a0b0b;
+            --soft-white: #f8f4f0;
+            --accent-red: #8b0000;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: var(--velvet);
+            color: var(--soft-white);
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Animated Emoji Nebula */
+        #canvas-nebula {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.6;
+        }
+
+        .main-stage {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .screen {
+            display: none;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .screen.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .title-text {
+            font-family: 'Bodoni Moda', serif;
+            font-size: 2.5rem;
+            font-style: italic;
+            color: var(--gold);
+            margin-bottom: 20px;
+            display: block;
+            line-height: 1.2;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            font-weight: 200;
+            letter-spacing: 1px;
+            margin-bottom: 40px;
+        }
+
+        /* Premium Buttons */
+        .btn-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .primary-btn {
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            padding: 15px 40px;
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .primary-btn:hover {
+            background: var(--gold);
+            color: var(--velvet);
+            box-shadow: 0 0 20px rgba(197, 160, 89, 0.4);
+        }
+
+        .secondary-btn {
+            background: transparent;
+            border: none;
+            color: rgba(248, 244, 240, 0.5);
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            text-decoration: underline;
+            transition: 0.3s;
+        }
+
+        #no-plea {
+            margin-top: 20px;
+            color: #ff6b6b;
+            font-size: 0.9rem;
+            font-style: italic;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        /* Success State */
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="canvas-nebula"></canvas>
+
+<div class="main-stage">
+    <div class="screen active" id="s1">
+        <span class="title-text">Hi Harshitha,</span>
+        <p>I wanted to take a moment away from the noise of the world... just for us.</p>
+        <button class="primary-btn" onclick="nav(1, 2)">Step Inside</button>
+    </div>
+
+    <div class="screen" id="s2">
+        <span class="title-text">The Comfort</span>
+        <p>Do you remember when we first realized we could talk for hours and never get tired? You've become my favorite part of every day.</p>
+        <button class="primary-btn" onclick="nav(2, 3)">I feel it too</button>
+    </div>
+
+    <div class="screen" id="s3">
+        <span class="title-text">The Connection</span>
+        <p>It’s rare to find someone who knows your silence as well as your words. I promise to always be your safe haven.</p>
+        <button class="primary-btn" onclick="nav(3, 4)">Always</button>
+    </div>
+
+    <div class="screen" id="s4">
+        <span class="title-text">One Heart.</span>
+        <p>I don't just want to be your best friend. I want to be your forever. Will you be my Valentine and my everything?</p>
+        <div class="btn-container">
+            <button class="primary-btn" onclick="nav(4, 5)">Yes, I will ❤️</button>
+            <button class="secondary-btn" id="no-btn" onclick="handleNo()">I'm not sure...</button>
+        </div>
+        <div id="no-plea">I feel like YES suits us really well 😉Want to try it? 💖</div>
+    </div>
+
+    <div class="screen" id="s5">
+        <span class="success-icon">♾️</span>
+        <span class="title-text">Forever Starts Now.</span>
+        <p>You've made me the luckiest person alive. I promise to cherish you every single day. <br><br><b>I Love You.</b></p>
+    </div>
+</div>
+
+<script>
+    // --- Cinematic Background Logic ---
+    const canvas = document.getElementById('canvas-nebula');
+    const ctx = canvas.getContext('2d');
+    const emojis = ['❤️','🥰','😘','😍','💕','😻','🫰','🫶','🫂','🩷','💌','🏩','💐','❤️‍🔥','💓','💜','🌹','💘'];
+    let particles = [];
+
+    function initCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    class Particle {
+        constructor() {
+            this.reset();
+        }
+        reset() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 15 + 10;
+            this.emoji = emojis[Math.floor(Math.random() * emojis.length)];
+            this.opacity = Math.random() * 0.4 + 0.1;
+            this.speed = Math.random() * 0.5 + 0.2;
+        }
+        update() {
+            this.y -= this.speed;
+            if (this.y < -50) this.y = canvas.height + 50;
+        }
+        draw() {
+            ctx.globalAlpha = this.opacity;
+            ctx.font = `${this.size}px serif`;
+            ctx.fillText(this.emoji, this.x, this.y);
+        }
+    }
+
+    for(let i=0; i<35; i++) particles.push(new Particle());
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', initCanvas);
+    initCanvas();
+    animate();
+
+    // --- Experience Flow ---
+    function nav(current, next) {
+        const curEl = document.getElementById('s' + current);
+        const nextEl = document.getElementById('s' + next);
+        
+        curEl.style.opacity = '0';
+        curEl.style.transform = 'translateY(-20px)';
+        
+        setTimeout(() => {
+            curEl.classList.remove('active');
+            nextEl.classList.add('active');
+            // Small trigger for animation
+            setTimeout(() => {
+                nextEl.style.opacity = '1';
+                nextEl.style.transform = 'translateY(0)';
+            }, 50);
+        }, 800);
+    }
+
+    // --- Respectful "No" Logic ---
+    function handleNo() {
+        const plea = document.getElementById('no-plea');
+        const noBtn = document.getElementById('no-btn');
+        
+        plea.style.opacity = '1';
+        // The button "runs away" slightly or fades to encourage the yes
+        noBtn.style.transform = `translate(${Math.random() * 40 - 20}px, ${Math.random() * 20}px)`;
+        noBtn.style.opacity = '0.5';
+    }
+</script>
+
+</body>
+</html>
